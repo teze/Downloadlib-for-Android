@@ -107,7 +107,7 @@ public class DownloadService extends Service {
 	@Override
 	public boolean onUnbind(Intent intent) {
 		Loger.i(TAG,"onUnbind");
-		return super.onUnbind(intent);
+		return true;
 	}
 
 	@Override

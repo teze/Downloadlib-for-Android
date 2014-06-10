@@ -19,9 +19,10 @@ public class MainActivity extends ActionBarActivity {
 	public void start(View view){
 		FileInfo info=new FileInfo();
 		info.name="爱和承诺";
-		info.url="http://img04.tooopen.com/images/20130315/tooopen_23024520.jpg";
+		
+		info.url="http://down11.zol.com.cn/liaotian/QQ4.7.0.apk";
 		info.progress=0;
-		info.filePath=FileOrDir.AppDir+"1.jpg";
+		info.filePath=FileOrDir.AppDir+"QQ.apk";
 		APP.getDbHelper().getFileDataDao().create(info);
 		Intent intent=new Intent(this, DownloadActivity.class);
 		startActivity(intent);

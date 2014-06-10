@@ -135,6 +135,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				Loger.d(TAG, "updateProgress >> "+progress);
 				ProgressBar progressBar=holder.progressBar;
 				TextView percent=holder.progressText;
 				progressBar.setProgress(progress);
