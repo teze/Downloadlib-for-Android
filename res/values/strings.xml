@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">DownloadDemo</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_download">DownloadActivity</string>
+    <string name="pause">暂停</string>
+    <string name="running">继续</string>
+    <string name="reload">重试</string>
+    <string name="finished">完成</string>
+
+</resources>
