@@ -2,12 +2,16 @@ package com.teze.downloaddemo;
 
 import java.util.List;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -17,10 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.teze.downloaddemo.DownloadListAdapter.ClickListener;
-import com.teze.downloaddemo.DownloadListAdapter.ViewHolder;
 import com.teze.downloaddemo.DownloadService.IDownloadService;
 import com.teze.downloaddemo.DownloadService.State;
-import com.teze.downloaddemo.HttpClientTool.DownloadCallback;
 
 public class DownloadActivity extends ActionBarActivity implements OnItemClickListener,ClickListener{
 
@@ -29,6 +31,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 	private DownloadListAdapter mAdapter;
 	private IDownloadService downloadService;
 	private DownloadProcess process;
+	private DownloadBroadcast downloadReceiver;
 
 	private ServiceConnection serviceConnection=new ServiceConnection() {
 
@@ -51,14 +54,16 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_download);
 		initView();
+		bindService();
 		initData();
 		loadAdapter();
-		bindService();
 	}
 
 	@Override
 	protected void onDestroy() {
+		Loger.i(TAG, "onDestroy");
 		unbindService(serviceConnection);
+		unregisterReceiver();
 		super.onDestroy();
 	}
 
@@ -74,8 +79,20 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		mAdapter=new DownloadListAdapter(this);
 		mAdapter.setClickListener(this);
 		listView.setAdapter(mAdapter);
+		registerReceiver();
 	}
 
+	private void registerReceiver(){
+		downloadReceiver=new DownloadBroadcast();
+		IntentFilter filter=new IntentFilter(DownloadService.ACTION_DOWNLOAD);
+		registerReceiver(downloadReceiver, filter);
+	}
+
+	private void unregisterReceiver(){
+		if (downloadReceiver!=null) {
+			unregisterReceiver(downloadReceiver);
+		}
+	}
 
 	public void loadAdapter(){
 		List<FileInfo> list=process.getDownloadList();
@@ -97,58 +114,60 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		startDownload(view,item);*/
 	}
 
-	
-	private void startDownload(final View view, final ViewHolder holder,FileInfo info){
-		downloadService.startDownload(info,new DownloadCallback() {
 
-			@Override
-			public void onSuccess() {
-				updateProgress(view,holder,100);
-			}
-
-			@Override
-			public void onStop() {
-
-			}
-
-			@Override
-			public void onProgress(long progress) {
-				updateProgress(view, holder,(int) progress);
-			}
-
-			@Override
-			public void onFailed() {
-
-			}
-			@Override
-			public void onStart(Object obj) {
-				
-			}
-		});
+	private void startDownload(FileInfo info){
+		if (downloadService!=null && info!=null) {
+			downloadService.startDownload(info);
+		}
 	}
-	
+
 	private boolean pauseDownload(Object obj){
-		return downloadService.pauseDownload(obj);
+		if (downloadService!=null) {
+			return downloadService.stopDownload(obj);
+		}
+		return false;
 	}
-	
-	private void updateProgress(final View view,final ViewHolder holder,final int progress){
+
+	private void updateProgress(final String fileKey,final long progress){
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Loger.d(TAG, "updateProgress >> "+progress);
-				ProgressBar progressBar=holder.progressBar;
-				TextView percent=holder.progressText;
-				progressBar.setProgress(progress);
-				percent.setText(progress+"%");
-				if (progress==100) {
-					holder.downloadBtn.setText(R.string.finished);
+				/*Loger.d(TAG, "updateProgress >> "+progress);*/
+				if (mAdapter==null||listView==null) {
+					return;
+				}
+				int position=mAdapter.getViewPosition(fileKey);
+				View currentView=getViewByPosion(position);
+				if (currentView!=null) {
+					ProgressBar progressBar=(ProgressBar) currentView.findViewById(R.id.progressBar);
+					TextView percent=(TextView) currentView.findViewById(R.id.progressText);
+					Button downloadBtn=(Button) currentView.findViewById(R.id.downloadBtn);
+					progressBar.setProgress((int) progress);
+					percent.setText(progress+"%");
+					if (progress==100) {
+						downloadBtn.setText(R.string.finished);
+					}
 				}
 			}
 		});
 	}
+	
+	public View getViewByPosion(int wantPosition){
+		if (listView==null) {
+			return null;
+		}
+		int firstPosition=listView.getFirstVisiblePosition()-listView.getHeaderViewsCount();
+		int childPosition=wantPosition-firstPosition;
+		if (childPosition<0 ||childPosition >= listView.getChildCount()) {
+			return null;
+		}else{
+			View wantView=listView.getChildAt(childPosition);
+			return wantView;
+		}
+	}
 
 	@Override
-	public void onDownloadClick(View button, ViewHolder holder,int position) {
+	public void onDownloadClick(View button,int position) {
 		FileInfo item=mAdapter.getItem(position);
 		String path=item.filePath;
 		State key=downloadService.getItemState(path);
@@ -156,10 +175,10 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		switch (key) {
 		case RUNNING:
 			boolean result=pauseDownload(path);
-			btn.setText(result?R.string.running:R.string.pause);
+			btn.setText(result?R.string.start:R.string.pause);
 			break;
-		case PAUSE:
-			startDownload(button,holder,item);
+		case STOP:
+			startDownload(item);
 			btn.setText(R.string.pause);
 			break;
 		case ERROR:
@@ -172,7 +191,42 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		default:
 			break;
 		}
-		
 	}
-	
+
+	class DownloadBroadcast extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String intentAction=intent.getAction();
+			if (intentAction.equals(DownloadService.ACTION_DOWNLOAD)) {
+				String actionType=intent.getStringExtra(DownloadService.INTENT_ACTION_TYPE);
+				Bundle data=intent.getBundleExtra(DownloadService.INTENT_BUNDLE);
+				if (data==null) {
+					return;
+				}
+				String fileKey=data.getString(DownloadService.INTENT_FILE_ID);
+				if (TextUtils.isEmpty(actionType)) {
+					return;
+				}
+				if (actionType.equals(DownloadService.Action.START)) {
+
+				}
+				if (actionType.equals(DownloadService.Action.STOP)) {
+
+				}
+				if (actionType.equals(DownloadService.Action.PROGRESS)) {
+					long progress=data.getLong(DownloadService.INTENT_PROGRESS);
+					updateProgress(fileKey, progress);
+				}
+				if (actionType.equals(DownloadService.Action.FAILED)) {
+
+				}
+				if (actionType.equals(DownloadService.Action.SUCCESS)) {
+					updateProgress(fileKey, 100);
+				}
+			}
+		}
+
+	}
+
 }

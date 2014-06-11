@@ -1,13 +1,12 @@
 package com.teze.downloaddemo;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,10 +19,11 @@ public class HttpClientTool {
 	private static final String TMP = ".tmp";
 	private static final int TIMEOUT_READ = 20 * 1000;
 	private static final int TIMEOUT_CONNECT = 10 * 1000;
-	private static final String TAG = "HttpClientTool";
+	protected static final String TAG = "HttpClientTool";
 
 
 	public static RandomAccessFile continuousDownload(String urlString,String filePath,DownloadCallback callback) {
+		Response response=new Response(urlString,filePath);
 		InputStream downInputStream = null;
 		RandomAccessFile fileTarget = null;
 		long fileSize = 0;
@@ -32,7 +32,7 @@ public class HttpClientTool {
 		try {
 			File temp=new File(filePath);
 			if (temp.exists()) {
-				callback.onSuccess();
+				callback.onSuccess(filePath,response);
 				return null;
 			}else{
 				temp.getParentFile().mkdirs();
@@ -80,7 +80,8 @@ public class HttpClientTool {
 				is.close();
 			}
 			if (StorageUtil.getFreeSpace(recordText.getParent()) < connection.getContentLength()) {
-				callback.onFailed();
+				response.msg="存储卡空间不足";
+				callback.onFailed(filePath, response);
 				Toast.makeText(APP.getInstance(), "存储卡空间不足", Toast.LENGTH_SHORT).show();
 				return null;
 			}
@@ -91,11 +92,11 @@ public class HttpClientTool {
 			while (!Thread.currentThread().isInterrupted()&& (length = downInputStream.read(buffer)) != -1) {
 				fileTarget.write(buffer, 0, length);
 				progress = fileTarget.length() * 100 / fileSize;
-				callback.onProgress(progress);
-				Loger.i(TAG, "progress >> "+progress);
+				callback.onProgress(filePath, progress);
+				/*Loger.i(TAG, "progress >> "+progress);*/
 			}
 			if (Thread.currentThread().isInterrupted()) {
-				callback.onStop();
+				callback.onStop(filePath, response);
 			}
 			downInputStream.close();
 			fileTarget.close();
@@ -103,29 +104,16 @@ public class HttpClientTool {
 				File tempFile = new File(filePath + TMP);
 				File file = new File(filePath);
 				tempFile.renameTo(file);
-				callback.onSuccess();
+				callback.onSuccess(filePath,response);
 				if (recordText.exists()) {
 					recordText.delete();
 				}
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			callback.onFailed();
+			response.exception=e;
+			callback.onFailed(filePath, response);
 			return null;
-		} catch (EOFException e) {
-			e.printStackTrace();
-			callback.onFailed();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			callback.onFailed();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			callback.onFailed();
-			return null;
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			callback.onFailed();
 		} finally {
 			//TODO
 		}
@@ -149,21 +137,27 @@ public class HttpClientTool {
 
 
 	public interface DownloadCallback {
-		public void onProgress(long progress);
+		public void onProgress(String fileKey,long progress);
 
-		public void onSuccess();
+		public void onSuccess(String fileKey,Response obj);
 
-		public void onFailed();
+		public void onFailed(String fileKey,Response obj);
 
-		public void onStop();
+		public void onStop(String fileKey,Response obj);
 		
-		public void onStart(Object obj);
+		public void onStart(String fileKey,Response obj);
 	}
 
-	public class Response{
+	public static class Response implements Serializable{
+		private static final long serialVersionUID = 1L;
 		String url;
 		String filePath;
+		String msg;
 		Exception exception;
 		
+		public Response(String url,String filePath){
+			this.url=url;
+			this.filePath=filePath;
+		}
 	}
 }

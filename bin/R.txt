@@ -346,7 +346,7 @@ int string finished 0x7f0a0014
 int string hello_world 0x7f0a000e
 int string pause 0x7f0a0011
 int string reload 0x7f0a0013
-int string running 0x7f0a0012
+int string start 0x7f0a0012
 int string title_activity_download 0x7f0a0010
 int style AppBaseTheme 0x7f0b0083
 int style AppTheme 0x7f0b0084

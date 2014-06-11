@@ -6,6 +6,7 @@ public class APP extends Application {
 
 	protected static final String TAG = "APP";
 	protected static String APP_NAME = "APP";
+	protected static String SCHEMA = "com.teze.downloaddemo.";
 
 	private static APP instance;
 	private static DatabaseHelper dbHelper;

@@ -1160,7 +1160,7 @@ containing a value of this type.
         public static final int hello_world=0x7f0a000e;
         public static final int pause=0x7f0a0011;
         public static final int reload=0x7f0a0013;
-        public static final int running=0x7f0a0012;
+        public static final int start=0x7f0a0012;
         public static final int title_activity_download=0x7f0a0010;
     }
     public static final class style {

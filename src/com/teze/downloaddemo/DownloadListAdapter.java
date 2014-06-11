@@ -1,6 +1,10 @@
 package com.teze.downloaddemo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,13 +16,19 @@ import android.widget.TextView;
 public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 
 
+	protected static final String TAG = "DownloadListAdapter";
 	private ClickListener clickListener;
+	private Map<String, String> viewMap;
+
 	public DownloadListAdapter(Context context) {
 		super(context);
+		viewMap=new HashMap<String,String>();
 	}
 
-	@Override
+	@Override   
+
 	public View getView(final int position, View convertView, ViewGroup parent) {
+		/*Loger.i(TAG, "getView >> "+position);*/
 		FileInfo item=getItem(position);
 		ViewHolder viewHolder=null;
 		if (convertView==null) {
@@ -34,21 +44,23 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 			viewHolder=(ViewHolder) convertView.getTag();
 		}
 
-		viewHolder.name.setText(item.name);
+		viewHolder.name.setText(item.name+">>"+position);
 		int percent=0;
 		if(item.fileSize!=0){
 			percent=item.progress*100/item.fileSize;
 		}
 
+		viewHolder.position=position;
+		invokePosition(item.filePath, position);
 		viewHolder.progressText.setText(percent+"%");
 		viewHolder.progressBar.setProgress(item.progress);
-		final ViewHolder holder=viewHolder;
+		setDownloadBtnText(viewHolder.downloadBtn, item.state);
 		viewHolder.downloadBtn.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				if(clickListener!=null){
-					clickListener.onDownloadClick(v,holder,position);
+					clickListener.onDownloadClick(v,position);
 				}
 			}
 		});
@@ -56,6 +68,43 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 		return convertView;
 	}
 
+
+	private void invokePosition(String key ,int position){
+		if (!TextUtils.isEmpty(key)) {
+			viewMap.put(key, position+"");
+		}
+	}
+
+	private void setDownloadBtnText(Button button,int state){
+		switch (state) {
+		case FileInfo.STATE_FINISHED:
+			button.setText(R.string.finished);
+			break;
+		case FileInfo.STATE_RUNNING:
+			button.setText(R.string.pause);
+			break;
+		case FileInfo.STATE_STOPPED:
+			button.setText(R.string.start);
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	public  int getViewPosition(String key){
+		int position=-1;
+		try {
+			if (!TextUtils.isEmpty(key) && viewMap!=null&& !viewMap.isEmpty()) {
+				String value=viewMap.get(key);
+				position=Integer.valueOf(value);
+				//TODO some bug ,can't find the file key  by Fooyou
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return position;
+	}
 
 	public ClickListener getClickListener() {
 		return clickListener;
@@ -67,6 +116,7 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 
 
 	static class ViewHolder{
+		int position;
 		ImageView image;
 		TextView name;
 		TextView progressText;
@@ -75,6 +125,6 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 	}
 
 	public interface ClickListener{
-		public void onDownloadClick(View v,ViewHolder holder,int position);
+		public void onDownloadClick(View v,int position);
 	}
 }

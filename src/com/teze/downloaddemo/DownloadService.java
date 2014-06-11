@@ -6,29 +6,37 @@ import java.util.Map;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import com.teze.downloaddemo.HttpClientTool.DownloadCallback;
+import com.teze.downloaddemo.HttpClientTool.Response;
 
 public class DownloadService extends Service {
 
 	private static final String TAG = "DownloadService";
+	public  static final String ACTION_DOWNLOAD = APP.SCHEMA+"action_download";
+	public  static final String INTENT_ACTION_TYPE = "action_type";
+	public  static final String INTENT_BUNDLE = "bundle";
+	public  static final String INTENT_FILE_ID = "file_id";
+	public  static final String INTENT_PROGRESS = "progress";
+	public  static final String INTENT_RESPONSE = "response";
+	
 	private Map<String, Thread> threadMap=new HashMap<String, Thread>();
 	
 	private IDownloadService binder=new IDownloadService() {
 		
 		@Override
-		void startDownload(Object obj,DownloadCallback callback) {
+		void startDownload(Object obj) {
 			Loger.i(TAG,"startDownload");
 			if (obj instanceof FileInfo) {
-				start((FileInfo) obj, callback);
+				start((FileInfo) obj);
 			}
-			
 		}
 		
 		@Override
-		boolean pauseDownload(Object obj) {
-			Loger.i(TAG,"pauseDownload");
+		boolean stopDownload(Object obj) {
+			Loger.i(TAG,"stopDownload");
 			if (obj instanceof String) {
 				return pause(obj+"");
 			}
@@ -36,14 +44,15 @@ public class DownloadService extends Service {
 		}
 		
 		@Override
-		void StopDownload() {
-			Loger.i(TAG,"StopDownload");
+		boolean removeDownload(Object obj) {
+			Loger.i(TAG,"removeDownload");
+			return false;
 		}
 
 		@Override
 		State getItemState(Object key) {
 			try {
-				return isRuning((String) key)?State.RUNNING:State.PAUSE;
+				return isRuning((String) key)?State.RUNNING:State.STOP;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -53,15 +62,70 @@ public class DownloadService extends Service {
 	}; 
 
 	
-	private void start(final FileInfo info,final DownloadCallback callback){
+	private void sendBroadCast(String type,Bundle bundle){
+		Intent intent=new Intent(ACTION_DOWNLOAD);
+		intent.putExtra(INTENT_ACTION_TYPE, type);
+		intent.putExtra(INTENT_BUNDLE, bundle);
+		sendBroadcast(intent);
+	}
+	
+	private void start(final FileInfo info){
+		final DownloadCallback callback=new DownloadCallback() {
+
+			@Override
+			public void onProgress(String fileKey, long progress) {
+				Bundle bundle=new Bundle();
+				bundle.putString(INTENT_FILE_ID, fileKey);
+				bundle.putLong(INTENT_PROGRESS, progress);
+				sendBroadCast(Action.PROGRESS, bundle);
+			}
+
+			@Override
+			public void onSuccess(String fileKey, Response obj) {
+				Bundle bundle=new Bundle();
+				bundle.putString(INTENT_FILE_ID, fileKey);
+				bundle.putSerializable(INTENT_RESPONSE, obj);
+				sendBroadCast(Action.SUCCESS, bundle);
+				
+			}
+
+			@Override
+			public void onFailed(String fileKey, Response obj) {
+				Bundle bundle=new Bundle();
+				bundle.putString(INTENT_FILE_ID, fileKey);
+				bundle.putSerializable(INTENT_RESPONSE, obj);
+				sendBroadCast(Action.FAILED, bundle);
+				
+			}
+
+			@Override
+			public void onStop(String fileKey, Response obj) {
+				Bundle bundle=new Bundle();
+				bundle.putString(INTENT_FILE_ID, fileKey);
+				bundle.putSerializable(INTENT_RESPONSE, obj);
+				sendBroadCast(Action.STOP, bundle);
+				
+			}
+
+			@Override
+			public void onStart(String fileKey, Response obj) {
+				Bundle bundle=new Bundle();
+				bundle.putString(INTENT_FILE_ID, fileKey);
+				bundle.putSerializable(INTENT_RESPONSE, obj);
+				sendBroadCast(Action.START, bundle);
+				
+			}
+			
+		};
+		
 		Thread thread=new Thread(new Runnable() {
 			@Override
 			public void run() {
 				HttpClientTool.continuousDownload(info.url, info.filePath, callback);
 			}
 		});
-		thread.start();
-		addThread(info.filePath, thread);
+		thread.start();// TODO thread pool 
+		keepThread(info.filePath, thread);
 	}
 	
 	
@@ -76,7 +140,7 @@ public class DownloadService extends Service {
 		}
 	}
 	
-	private void addThread(String key ,Thread thread ){
+	private void keepThread(String key ,Thread thread ){
 		if(threadMap!=null){
 			threadMap.put(key, thread);
 		}
@@ -129,13 +193,21 @@ public class DownloadService extends Service {
 	}
 	
 	abstract class IDownloadService extends Binder {
-		abstract void startDownload(Object obj,DownloadCallback callback );
-		abstract boolean pauseDownload(Object obj);
-		abstract void StopDownload();
+		abstract void startDownload(Object obj );
+		abstract boolean stopDownload(Object obj);
+		abstract boolean removeDownload(Object obj);
 		abstract State getItemState(Object obj);
 	}
 	
 	public enum State{
-		RUNNING,PAUSE,ERROR,FINISHED;
+		RUNNING,STOP,ERROR,FINISHED;
+	}
+	
+	public static class Action{
+		static String START="start";
+		static String STOP="stop";
+		static String PROGRESS="progress";
+		static String SUCCESS="success";
+		static String FAILED="failed";
 	}
 }

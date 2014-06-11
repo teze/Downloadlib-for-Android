@@ -16,20 +16,21 @@ public class MainActivity extends ActionBarActivity {
 
 	}
 
-	public void start(View view){
-		FileInfo info=new FileInfo();
-		info.name="爱和承诺";
-		
-		info.url="http://down11.zol.com.cn/liaotian/QQ4.7.0.apk";
-		info.progress=0;
-		info.filePath=FileOrDir.AppDir+"QQ.apk";
-		APP.getDbHelper().getFileDataDao().create(info);
-		Intent intent=new Intent(this, DownloadActivity.class);
-		startActivity(intent);
+	public void add(View view){
+		for (int i = 0; i < 15; i++) {
+			FileInfo info=new FileInfo();
+			info.url="http://down11.zol.com.cn/liaotian/QQ4.7.0.apk";
+			info.name=i+"QQ.apk";
+			info.filePath=FileOrDir.AppDir+info.name;
+			info.progress=0;
+			info.state=FileInfo.STATE_RUNNING;
+			APP.getDbHelper().getFileDataDao().create(info);
+		}
 	}
 	
-	public void pause(View view){
-		
+	public void start(View view){
+		Intent intent=new Intent(this, DownloadActivity.class);
+		startActivity(intent);
 	}
 
 }

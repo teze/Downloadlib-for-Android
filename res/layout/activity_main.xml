@@ -15,8 +15,8 @@
         android:layout_alignRight="@+id/button1"
         android:layout_below="@+id/button1"
         android:layout_marginTop="41dp"
-        android:onClick="pause"
-        android:text="暂停" />
+        android:onClick="add"
+        android:text="添加" />
 
     <Button
         android:id="@+id/button1"
@@ -26,6 +26,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="59dp"
         android:onClick="start"
-        android:text="开始" />
+        android:text="查看" />
 
 </RelativeLayout>
