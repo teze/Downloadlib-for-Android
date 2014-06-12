@@ -49,11 +49,10 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 		}
 
 		viewHolder.name.setText(item.name+">>"+position);
-		int percent=0;
-		if(item.fileSize!=0){
+		int percent=item.progress;
+		/*if(item.fileSize!=0){
 			percent=item.progress*100/item.fileSize;
-		}
-
+		}*/
 		viewHolder.position=position;
 		invokePosition(item.filePath, position);
 		viewHolder.progressText.setText(percent+"%");
