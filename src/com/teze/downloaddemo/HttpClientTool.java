@@ -1,6 +1,8 @@
 package com.teze.downloaddemo;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -11,6 +13,10 @@ import java.net.URL;
 
 import android.widget.Toast;
 
+/**功能：
+ * HttpClientTool
+ * @author   by fooyou 2014年6月12日   下午3:35:42
+ */
 public class HttpClientTool {
 
 	private static final int TIMEOUT_READ = 20 * 1000;
@@ -59,15 +65,15 @@ public class HttpClientTool {
 
 			//1.Database record mode
 
-			fileSize = connection.getContentLength();
+			/*fileSize = connection.getContentLength();
 			if (callback !=null) {
 				response.fileSize=fileSize;
 				callback.onStart(filePath, response);
-			}
+			}*/
 
 			//2. File record mode
-			/*boolean isFirst = false;
-			 File recordText = new File(filePath + DAT);
+			boolean isFirst = false;
+			File recordText = new File(filePath + DAT);
 			if (!recordText.exists()) {
 				recordText.createNewFile();
 			}
@@ -88,7 +94,11 @@ public class HttpClientTool {
 				is.read(tempBuffer);
 				fileSize = Integer.valueOf(new String(tempBuffer));
 				is.close();
-			}*/
+			}
+			if (callback !=null) {
+				response.fileSize=fileSize;
+				callback.onStart(filePath, response);
+			}
 			if (StorageUtil.getFreeSpace(temp.getParent())< fileSize) {
 				response.msg="存储卡空间不足";
 				response.progress=progress;
@@ -117,9 +127,9 @@ public class HttpClientTool {
 				File file = new File(filePath);
 				tempFile.renameTo(file);
 				callback.onSuccess(filePath,response);
-				/*if (recordText.exists()) {
+				if (recordText.exists()) {
 					recordText.delete();
-				}*/
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

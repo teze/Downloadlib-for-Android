@@ -8,6 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+/**功能：
+ * CommonAdapter
+ * @param <T>
+ * @author   by fooyou 2014年6月11日   下午3:34:57
+ */
 public class CommonAdapter <T> extends  BaseAdapter {
 
 	protected Context mContext;

@@ -13,6 +13,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+/**功能：
+ * DownloadListAdapter
+ * @author   by fooyou 2014年6月12日   下午3:35:21
+ */
 public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 
 

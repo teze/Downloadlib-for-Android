@@ -3,6 +3,10 @@ package com.teze.downloaddemo;
 
 import android.os.StatFs;
 
+/**功能：
+ * StorageUtil
+ * @author   by fooyou 2014年6月12日   下午3:35:50
+ */
 public class StorageUtil {
 	public static long getFreeSpace(String path){
 		long freeSize=0;

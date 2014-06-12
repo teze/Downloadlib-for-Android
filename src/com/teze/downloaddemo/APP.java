@@ -2,6 +2,10 @@ package com.teze.downloaddemo;
 
 import android.app.Application;
 
+/**功能：
+ * APP
+ * @author   by fooyou 2014年6月11日   下午3:34:40
+ */
 public class APP extends Application {
 
 	protected static final String TAG = "APP";

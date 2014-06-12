@@ -12,6 +12,10 @@ import android.os.IBinder;
 import com.teze.downloaddemo.HttpClientTool.DownloadCallback;
 import com.teze.downloaddemo.HttpClientTool.Response;
 
+/**功能：
+ * DownloadService
+ * @author   by fooyou 2014年6月12日   下午3:35:29
+ */
 public class DownloadService extends Service {
 
 	private static final String TAG = "DownloadService";
@@ -24,7 +28,7 @@ public class DownloadService extends Service {
 	public  static final String INTENT_FILE_INFO = "fileInfo";
 	
 	private DownloadProcess process;
-	private Map<String, Thread> threadMap=new HashMap<String, Thread>();
+	private Map<String, Thread> threadRecordMap=new HashMap<String, Thread>();
 	
 	private IDownloadService binder=new IDownloadService() {
 		
@@ -65,7 +69,7 @@ public class DownloadService extends Service {
 		@Override
 		State getItemState(Object key) {
 			try {
-				return isRuning((String) key)?State.RUNNING:State.STOPPED;
+				return isRunning((String) key)?State.RUNNING:State.STOPPED;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -80,7 +84,12 @@ public class DownloadService extends Service {
 	}
 	
 	private boolean updateRecordDb(FileInfo info){
-		int rowID=process.updateDownloadDb(info);
+		int rowID=process.updateFileSizeDb(info);
+		return rowID==-1?false:true;
+	}
+	
+	private boolean updateProgressDb(FileInfo info){
+		int rowID=process.updateProgressDb(info);
 		return rowID==-1?false:true;
 	}
 	
@@ -114,7 +123,8 @@ public class DownloadService extends Service {
 				temp.filePath=fileKey;
 				temp.progress=100;
 				temp.state=FileInfo.STATE_FINISHED;
-				updateRecordDb(temp); 
+				updateProgressDb(temp);
+				removeThread(fileKey);
 			}
 
 			@Override
@@ -127,7 +137,8 @@ public class DownloadService extends Service {
 				temp.filePath=fileKey;
 				temp.progress=(int) obj.progress;
 				temp.state=FileInfo.STATE_STOPPED;
-				updateRecordDb(temp); 
+				updateProgressDb(temp); 
+				removeThread(fileKey);
 			}
 
 			@Override
@@ -140,7 +151,8 @@ public class DownloadService extends Service {
 				temp.filePath=fileKey;
 				temp.progress=(int) obj.progress;
 				temp.state=FileInfo.STATE_STOPPED;
-				updateRecordDb(temp); 
+				updateProgressDb(temp);
+				removeThread(fileKey);
 			}
 
 			@Override
@@ -158,22 +170,26 @@ public class DownloadService extends Service {
 			
 		};
 		
-		Thread thread=new Thread(new Runnable() {
+		Runnable runnable=new Runnable() {
+			
 			@Override
 			public void run() {
+				if (isRunning(info.filePath)) {
+					return;
+				}
+				keepThread(info.filePath, Thread.currentThread());
 				HttpClientTool.continuousDownload(info.url, info.filePath, callback);
 			}
-		});
-		thread.start();// TODO thread pool manager
-		keepThread(info.filePath, thread);
+		};
+		ThreadPoolManager.getInstance().addThread(runnable);
 	}
 	
 	
 	private boolean pause(String key){
-		Thread current =threadMap.get(key);
+		Thread current =threadRecordMap.get(key);
 		if (current!=null) {
 			current.interrupt();
-			threadMap.remove(key);
+			threadRecordMap.remove(key);
 			return true;
 		}else {
 			return false;
@@ -181,17 +197,24 @@ public class DownloadService extends Service {
 	}
 	
 	private void keepThread(String key ,Thread thread ){
-		if(threadMap!=null){
-			threadMap.put(key, thread);
+		if(threadRecordMap!=null){
+			threadRecordMap.put(key, thread);
 		}
 	}
 	
-	private boolean isRuning(String key ){
-		if(threadMap!=null){
-			return threadMap.containsKey(key);
+	private boolean removeThread(String key){
+		if(threadRecordMap!=null){
+			Thread thread=threadRecordMap.remove(key);
+			return thread!=null;
 		}
 		return false;
-		
+	}
+	
+	private boolean isRunning(String key ){
+		if(threadRecordMap!=null){
+			return threadRecordMap.containsKey(key);
+		}
+		return false;
 	}
 	
 	

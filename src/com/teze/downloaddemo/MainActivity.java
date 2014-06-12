@@ -58,6 +58,6 @@ public class MainActivity extends ActionBarActivity {
 		info.state=FileInfo.STATE_RUNNING;
 		/*APP.getDbHelper().getFileDataDao().update(info);*/
 		DownloadProcess downloadProcess=new DownloadProcess();
-		downloadProcess.updateDownloadDb(info);
+		downloadProcess.updateFileSizeDb(info);
 	}
 }

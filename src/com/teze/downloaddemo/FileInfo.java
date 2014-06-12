@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import com.j256.ormlite.field.DatabaseField;
 
+/**功能：
+ * FileInfo
+ * @author   by fooyou 2014年6月12日   下午3:35:34
+ */
 public class FileInfo  implements Serializable{
 	private static final long serialVersionUID = 1L;
 	public static final int STATE_FINISHED = 1;

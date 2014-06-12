@@ -24,6 +24,10 @@ import com.teze.downloaddemo.DownloadListAdapter.ClickListener;
 import com.teze.downloaddemo.DownloadService.IDownloadService;
 import com.teze.downloaddemo.DownloadService.State;
 
+/**功能：
+ * DownloadActivity
+ * @author   by fooyou 2014年6月12日   下午3:35:17
+ */
 public class DownloadActivity extends ActionBarActivity implements OnItemClickListener,ClickListener{
 
 	protected static final String TAG = "DownloadActivity";

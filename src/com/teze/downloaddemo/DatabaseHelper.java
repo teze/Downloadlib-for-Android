@@ -11,6 +11,10 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+/**功能：
+ * DatabaseHelper
+ * @author   by fooyou 2014年6月12日   下午3:35:03
+ */
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	public  static final String TABLE_NAME = "fileinfo";
