@@ -8,7 +8,8 @@ import android.view.View;
 import com.teze.downloaddemo.Global.FileOrDir;
 
 public class MainActivity extends ActionBarActivity {
-
+   private int index;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,9 +36,10 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void addDownload(){
+		index++;
 		FileInfo info=new FileInfo();
 		info.url="http://down11.zol.com.cn/liaotian/QQ4.7.0.apk";
-		info.name="QQ.apk";
+		info.name=index+"QQ.apk";
 		info.filePath=FileOrDir.AppDir+info.name;
 		info.progress=0;
 		info.state=FileInfo.STATE_RUNNING;

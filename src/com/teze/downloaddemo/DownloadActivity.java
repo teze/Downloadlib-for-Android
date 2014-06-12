@@ -156,6 +156,55 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 		});
 	}
 	
+	private void updateDownloadBtnText(final String fileKey,final State state){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mAdapter==null||listView==null) {
+					return;
+				}
+				int position=mAdapter.getViewPosition(fileKey);
+				View currentView=getViewByPosion(position);
+				if (currentView!=null) {
+					Button downloadBtn=(Button) currentView.findViewById(R.id.downloadBtn);
+					switch (state) {
+					case RUNNING:
+						downloadBtn.setText(R.string.pause);
+						break;
+					case STOPPED:
+						downloadBtn.setText(R.string.start);
+						break;
+					case ERROR:
+						downloadBtn.setText(R.string.reload);
+						break;
+					case FINISHED:
+						downloadBtn.setText(R.string.finished);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		});
+	}
+	
+	public void updateItemCache(String fileKey,long progress,int state){
+		int position=mAdapter.getViewPosition(fileKey);
+		FileInfo fileInfo=mAdapter.getItem(position);
+		if (fileInfo!=null) {
+			fileInfo.progress=(int) progress;
+			fileInfo.state=state;
+		}
+	}
+	
+	public void updateItemCache(String fileKey,int state){
+		int position=mAdapter.getViewPosition(fileKey);
+		FileInfo fileInfo=mAdapter.getItem(position);
+		if (fileInfo!=null) {
+			fileInfo.state=state;
+		}
+	}
+	
 	public View getViewByPosion(int wantPosition){
 		if (listView==null) {
 			return null;
@@ -171,7 +220,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 	@Override
-	public void onDownloadClick(View button,int position) {
+	public void onDownloadClick(View button,int position) {//TODO need modify
 		FileInfo item=mAdapter.getItem(position);
 		String path=item.filePath;
 		State key=downloadService.getItemState(path);
@@ -213,24 +262,29 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 					return;
 				}
 				if (actionType.equals(DownloadService.Action.START)) {
-
+					updateItemCache(fileKey,FileInfo.STATE_RUNNING);
+					updateDownloadBtnText(fileKey, State.RUNNING);
 				}
 				if (actionType.equals(DownloadService.Action.STOP)) {
-
+					updateItemCache(fileKey, FileInfo.STATE_STOPPED);
+					updateDownloadBtnText(fileKey, State.STOPPED);
 				}
 				if (actionType.equals(DownloadService.Action.PROGRESS)) {
 					long progress=data.getLong(DownloadService.INTENT_PROGRESS);
 					updateProgress(fileKey, progress);
+					updateItemCache(fileKey, progress, FileInfo.STATE_RUNNING);
 				}
 				if (actionType.equals(DownloadService.Action.FAILED)) {
-					
+					updateItemCache(fileKey, FileInfo.STATE_STOPPED);
+					updateDownloadBtnText(fileKey, State.ERROR);
 				}
 				if (actionType.equals(DownloadService.Action.SUCCESS)) {
 					updateProgress(fileKey, 100);
+					updateItemCache(fileKey, FileInfo.STATE_FINISHED);
+					updateDownloadBtnText(fileKey, State.FINISHED);
 				}
 			}
 		}
-
 	}
-
+	
 }
