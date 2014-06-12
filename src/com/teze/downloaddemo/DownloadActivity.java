@@ -177,7 +177,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 			boolean result=pauseDownload(path);
 			btn.setText(result?R.string.start:R.string.pause);
 			break;
-		case STOP:
+		case STOPPED:
 			startDownload(item);
 			btn.setText(R.string.pause);
 			break;
@@ -219,7 +219,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 					updateProgress(fileKey, progress);
 				}
 				if (actionType.equals(DownloadService.Action.FAILED)) {
-
+					
 				}
 				if (actionType.equals(DownloadService.Action.SUCCESS)) {
 					updateProgress(fileKey, 100);

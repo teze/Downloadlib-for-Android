@@ -98,7 +98,7 @@ public  class DownloadListAdapter extends CommonAdapter<FileInfo>{
 			if (!TextUtils.isEmpty(key) && viewMap!=null&& !viewMap.isEmpty()) {
 				String value=viewMap.get(key);
 				position=Integer.valueOf(value);
-				//TODO some bug ,can't find the file key  by Fooyou
+				//TODO some bug ,may be can't find the file key  by Fooyou
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

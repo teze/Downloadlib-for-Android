@@ -19,11 +19,19 @@ public class DownloadProcess {
 		return list;
 	}
 	
-	public void addDownload(FileInfo info){
-		fileDao.create(info);
+	public int addDownloadDb(FileInfo info){
+		return fileDao.create(info);
 	}
 	
-	public void updateDownloadState(){
-		
+	public int updateDownloadDb(FileInfo info){
+		if (info==null) {
+			return -1;
+		}
+		String fileKey=info.filePath;
+		String fileSize=info.fileSize+"";
+		String sql="UPDATE '"+DatabaseHelper.TABLE_NAME+"' SET fileSize = ? WHERE filePath =?";
+		String[] args={fileSize,fileKey};
+		int rowID=fileDao.updateRaw(sql, args);
+		return rowID;
 	}
 }

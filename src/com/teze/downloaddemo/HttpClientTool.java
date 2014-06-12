@@ -1,8 +1,6 @@
 package com.teze.downloaddemo;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -15,10 +13,10 @@ import android.widget.Toast;
 
 public class HttpClientTool {
 
-	private static final String DAT = ".Dat";
-	private static final String TMP = ".tmp";
 	private static final int TIMEOUT_READ = 20 * 1000;
 	private static final int TIMEOUT_CONNECT = 10 * 1000;
+	protected static final String DAT = ".Dat";
+	protected static final String TMP = ".tmp";
 	protected static final String TAG = "HttpClientTool";
 
 
@@ -26,12 +24,15 @@ public class HttpClientTool {
 		Response response=new Response(urlString,filePath);
 		InputStream downInputStream = null;
 		RandomAccessFile fileTarget = null;
-		long fileSize = 0;
+		File temp=null;
+		long fileSize = -1;
 		long progress = 0;
-		boolean isFirst = false;
 		try {
-			File temp=new File(filePath);
-			if (temp.exists()) {
+			if (callback==null) {
+				callback=new DefulatDownloadCallback();
+			}
+			temp=new File(filePath);
+			if (temp.exists()&& callback!=null) {
 				callback.onSuccess(filePath,response);
 				return null;
 			}else{
@@ -40,7 +41,7 @@ public class HttpClientTool {
 
 			fileTarget = new RandomAccessFile(filePath + TMP, "rw");
 			long startPosition = fileTarget.length();
-			
+
 			HttpURLConnection connection;
 			connection = getConnection(urlString);
 			if (connection == null) {
@@ -56,8 +57,17 @@ public class HttpClientTool {
 			connection.connect();
 			downInputStream = connection.getInputStream();
 
-			
-			File recordText = new File(filePath + DAT);
+			//1.Database record mode
+
+			fileSize = connection.getContentLength();
+			if (callback !=null) {
+				response.fileSize=fileSize;
+				callback.onStart(filePath, response);
+			}
+
+			//2. File record mode
+			/*boolean isFirst = false;
+			 File recordText = new File(filePath + DAT);
 			if (!recordText.exists()) {
 				recordText.createNewFile();
 			}
@@ -78,14 +88,15 @@ public class HttpClientTool {
 				is.read(tempBuffer);
 				fileSize = Integer.valueOf(new String(tempBuffer));
 				is.close();
-			}
-			if (StorageUtil.getFreeSpace(recordText.getParent()) < connection.getContentLength()) {
+			}*/
+			if (StorageUtil.getFreeSpace(temp.getParent())< fileSize) {
 				response.msg="存储卡空间不足";
+				response.progress=progress;
 				callback.onFailed(filePath, response);
 				Toast.makeText(APP.getInstance(), "存储卡空间不足", Toast.LENGTH_SHORT).show();
 				return null;
 			}
-			
+
 			byte[] buffer = new byte[1024];
 			int length = 0;
 			fileTarget.seek(startPosition);
@@ -96,7 +107,8 @@ public class HttpClientTool {
 				/*Loger.i(TAG, "progress >> "+progress);*/
 			}
 			if (Thread.currentThread().isInterrupted()) {
-				callback.onStop(filePath, response);
+				response.progress=progress;
+				callback.onStop(filePath,response);
 			}
 			downInputStream.close();
 			fileTarget.close();
@@ -105,17 +117,18 @@ public class HttpClientTool {
 				File file = new File(filePath);
 				tempFile.renameTo(file);
 				callback.onSuccess(filePath,response);
-				if (recordText.exists()) {
+				/*if (recordText.exists()) {
 					recordText.delete();
-				}
+				}*/
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.exception=e;
+			response.progress=progress;
 			callback.onFailed(filePath, response);
 			return null;
 		} finally {
-			//TODO
+			//TODO some stuff
 		}
 		return fileTarget;
 	}
@@ -135,7 +148,7 @@ public class HttpClientTool {
 		return connection;
 	} 
 
-
+	
 	public interface DownloadCallback {
 		public void onProgress(String fileKey,long progress);
 
@@ -144,17 +157,48 @@ public class HttpClientTool {
 		public void onFailed(String fileKey,Response obj);
 
 		public void onStop(String fileKey,Response obj);
-		
+
 		public void onStart(String fileKey,Response obj);
+	}
+	
+	public static class DefulatDownloadCallback implements DownloadCallback{
+
+		@Override
+		public void onProgress(String fileKey, long progress) {
+			Loger.i(TAG, "onProgress");
+		}
+
+		@Override
+		public void onSuccess(String fileKey, Response obj) {
+			Loger.i(TAG, "onSuccess");
+			
+		}
+
+		@Override
+		public void onFailed(String fileKey, Response obj) {
+			Loger.i(TAG, "onFailed");
+		}
+
+		@Override
+		public void onStop(String fileKey, Response obj) {
+			Loger.i(TAG, "onStop");
+		}
+
+		@Override
+		public void onStart(String fileKey, Response obj) {
+			Loger.i(TAG, "onStart");
+		}
 	}
 
 	public static class Response implements Serializable{
 		private static final long serialVersionUID = 1L;
 		String url;
 		String filePath;
+		long fileSize;
+		long progress;
 		String msg;
 		Exception exception;
-		
+
 		public Response(String url,String filePath){
 			this.url=url;
 			this.filePath=filePath;
