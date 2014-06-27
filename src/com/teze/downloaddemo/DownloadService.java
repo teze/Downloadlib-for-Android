@@ -251,9 +251,12 @@ public class DownloadService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Loger.i(TAG,"onStartCommand");
-		FileInfo info=(FileInfo) intent.getSerializableExtra(INTENT_FILE_INFO);
-		if (info!=null) {
-			binder.addDownload(info);
+		Object object=intent.getSerializableExtra(INTENT_FILE_INFO);
+		if (object instanceof FileInfo) {
+			FileInfo info=(FileInfo) object;
+			if (info!=null) {
+				binder.addDownload(info);
+			}
 		}
 		return super.onStartCommand(intent, flags, startId);
 	}
