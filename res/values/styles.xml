@@ -5,6 +5,7 @@
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -17,4 +18,40 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    
+    <!-- start  动画主题  add by Fooyou -->
+    <style name="CustomTheme" parent="@android:style/Theme.Light">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+    
+	<style name="CustomTheme.NoTranslucent" parent="@android:style/Theme.Light">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+    </style>
+    
+	<style name="CustomTheme.MX.Animation" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+    
+	<style name="CustomTheme.MX.Animation.NoTranslucent" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+    </style>
+    
+	<style name="CustomTheme.NoTitleBar.Animation" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+    
+	<style name="CustomTheme.NoTitleBar.Animation.NoTranslucent" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+    </style>
+	
+	 <style name="AnimationActivity" mce_bogus="1" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/in_from_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/out_to_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/in_from_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/out_to_right</item>
+	</style>
+	<!--  end  动画主题  add by Fooyou -->
 </resources>

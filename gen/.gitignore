@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 /android/
 /com/
+=======
+/android
+/com
+>>>>>>> cbdbc6a5d9d350792d52f266e8c91b0ce83e9d7b
 /.gitignore
