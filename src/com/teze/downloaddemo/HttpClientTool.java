@@ -60,6 +60,9 @@ public class HttpClientTool {
 			connection.setInstanceFollowRedirects(true);
 			connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
 			connection.setRequestProperty("Range", "bytes=" + startPosition+ "-");
+			connection.addRequestProperty("Accept-Encoding", "gzip");// EOFException
+			connection.addRequestProperty("Accept-Encoding", "zip");// EOFException
+			connection.setRequestProperty("Connection", "close");// EOFException
 			connection.connect();
 			downInputStream = connection.getInputStream();
 
