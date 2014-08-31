@@ -1,5 +1,5 @@
 
-package com.teze.downloaddemo;
+package in.teze.download;
 
 import android.os.StatFs;
 

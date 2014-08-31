@@ -1,4 +1,4 @@
-package com.teze.downloaddemo;
+package in.teze.download;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;

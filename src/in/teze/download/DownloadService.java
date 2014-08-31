@@ -1,4 +1,7 @@
-package com.teze.downloaddemo;
+package in.teze.download;
+
+import in.teze.download.HttpClientTool.DownloadCallback;
+import in.teze.download.HttpClientTool.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,9 +11,6 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-
-import com.teze.downloaddemo.HttpClientTool.DownloadCallback;
-import com.teze.downloaddemo.HttpClientTool.Response;
 
 /**功能：
  * DownloadService

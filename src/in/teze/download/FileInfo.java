@@ -1,4 +1,4 @@
-package com.teze.downloaddemo;
+package in.teze.download;
 
 import java.io.Serializable;
 

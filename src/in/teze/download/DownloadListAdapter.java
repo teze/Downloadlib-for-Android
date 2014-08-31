@@ -1,8 +1,8 @@
-package com.teze.downloaddemo;
+package in.teze.download;
 
+import in.teze.download.R;
 import java.util.HashMap;
 import java.util.Map;
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;

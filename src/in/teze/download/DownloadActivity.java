@@ -1,4 +1,9 @@
-package com.teze.downloaddemo;
+package in.teze.download;
+
+import in.teze.download.R;
+import in.teze.download.DownloadListAdapter.ClickListener;
+import in.teze.download.DownloadService.IDownloadService;
+import in.teze.download.DownloadService.State;
 
 import java.util.List;
 
@@ -19,10 +24,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.teze.downloaddemo.DownloadListAdapter.ClickListener;
-import com.teze.downloaddemo.DownloadService.IDownloadService;
-import com.teze.downloaddemo.DownloadService.State;
 
 /**功能：
  * DownloadActivity

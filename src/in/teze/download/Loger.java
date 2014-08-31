@@ -1,7 +1,8 @@
 
-package com.teze.downloaddemo;
+package in.teze.download;
 
 import android.util.Log;
+import in.teze.download.BuildConfig;
 
 
 

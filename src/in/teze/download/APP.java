@@ -1,4 +1,4 @@
-package com.teze.downloaddemo;
+package in.teze.download;
 
 import android.app.Application;
 

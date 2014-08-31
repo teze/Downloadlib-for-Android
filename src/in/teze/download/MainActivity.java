@@ -1,11 +1,11 @@
-package com.teze.downloaddemo;
+package in.teze.download;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-
-import com.teze.downloaddemo.Global.FileOrDir;
+import in.teze.download.R;
+import in.teze.download.Global.FileOrDir;
 
 public class MainActivity extends ActionBarActivity {
    private int index;
