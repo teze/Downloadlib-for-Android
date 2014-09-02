@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 
 /**功能：
  * DownloadService
@@ -26,6 +27,7 @@ public class DownloadService extends Service {
 	public  static final String INTENT_PROGRESS = "progress";
 	public  static final String INTENT_RESPONSE = "response";
 	public  static final String INTENT_FILE_INFO = "fileInfo";
+	public static final String INTENT_TASK = "intent_task";
 	
 	private DownloadProcess process;
 	private Map<String, Thread> threadRecordMap=new HashMap<String, Thread>();
@@ -60,8 +62,14 @@ public class DownloadService extends Service {
 			boolean reuslt=false;
 			if (obj instanceof FileInfo) {
 				FileInfo info=(FileInfo) obj;
-				reuslt=addRecordDb(info);
-				if (reuslt)start(info);
+				if (!isRecordExist(info)) {
+					reuslt = addRecordDb(info);
+					if (reuslt){
+						start(info);	
+					}
+				}else{
+					start(info);		
+				}
 			}
 			return reuslt;
 		}
@@ -77,6 +85,10 @@ public class DownloadService extends Service {
 		}
 
 	}; 
+	
+	private boolean isRecordExist(FileInfo info) {
+		return process.isRecordExist(info);
+	}
 
 	private boolean addRecordDb(FileInfo info){
 		int rowID=process.addDownloadDb(info);
@@ -251,15 +263,7 @@ public class DownloadService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Loger.i(TAG,"onStartCommand");
-		if (intent!=null) {
-			Object object=intent.getSerializableExtra(INTENT_FILE_INFO);
-			if (object instanceof FileInfo) {
-				FileInfo info=(FileInfo) object;
-				if (info!=null) {
-					binder.addDownload(info);
-				}
-			}
-		}
+		executeTask(intent);
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -267,6 +271,32 @@ public class DownloadService extends Service {
 	public void onDestroy() {
 		Loger.i(TAG,"onDestroy");
 		super.onDestroy();
+	}
+	
+	
+	private void executeTask(Intent intent){
+		if (intent != null) {
+			Object object = intent.getSerializableExtra(INTENT_FILE_INFO);
+			String stask=intent.getStringExtra(INTENT_TASK);
+			if (object instanceof FileInfo) {
+				FileInfo info = (FileInfo) object;
+				if (TextUtils.isEmpty(stask)) {
+					return;
+				}
+				if (stask.equals(Task.TASK_ADD_DOWNLOAD)) {
+					binder.addDownload(info);
+				}
+				else if(stask.equals(Task.TASK_START_DOWNLOAD)){
+					binder.startDownload(info);
+				}
+				else if(stask.equals(Task.TASK_STOP_DOWNLOAD)){
+					binder.stopDownload(info.filePath);
+				}
+				else if(stask.equals(Task.TASK_REMOVE_DOWNLOAD)){
+					binder.removeDownload(info);
+				}
+			}
+		}
 	}
 	
 	abstract class IDownloadService extends Binder {
@@ -287,5 +317,12 @@ public class DownloadService extends Service {
 		static String PROGRESS="progress";
 		static String SUCCESS="success";
 		static String FAILED="failed";
+	}
+	
+	public static class Task {
+		public static final String TASK_START_DOWNLOAD = "task_start_download";
+		public static final String TASK_STOP_DOWNLOAD = "task_stop_download";
+		public static final String TASK_REMOVE_DOWNLOAD = "task_remove_download";
+		public static final String TASK_ADD_DOWNLOAD = "task_add_download";
 	}
 }

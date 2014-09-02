@@ -1,6 +1,8 @@
 package in.teze.download;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -70,6 +72,26 @@ public class DownloadProcess {
 			Loger.w(TAG, "updateFileRecord error >>"+info.toString());
 		}
 		return rows;
+	}
+	
+	public boolean isRecordExist(FileInfo info) {
+		if (info == null) {
+			return false;
+		}
+		String fileKey = info.filePath;
+		Map<String, Object> map=new HashMap<String, Object>();
+	
+		map.put("filePath", fileKey);
+		try {
+			List<FileInfo> fileInfos= fileDao.queryForFieldValuesArgs(map);
+			if (fileInfos != null && fileInfos.size() > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Loger.w(TAG, "query DownloadDb error >>" + info.toString());
+		}
+		return false;
 	}
 	
 }
