@@ -51,6 +51,7 @@ public class HttpClientTool {
 			HttpURLConnection connection;
 			connection = getConnection(urlString);
 			if (connection == null) {
+				callback.onFailed(filePath, response);
 				return null;
 			}
 			connection.setConnectTimeout(TIMEOUT_CONNECT);
@@ -87,6 +88,9 @@ public class HttpClientTool {
 			}
 			if (isFirst) {
 				fileSize = connection.getContentLength();
+				if (fileSize < 0) {
+					callback.onFailed(filePath, response);
+				}
 				FileOutputStream os = new FileOutputStream(recordText);
 				os.write((fileSize + "").getBytes());
 				os.flush();
