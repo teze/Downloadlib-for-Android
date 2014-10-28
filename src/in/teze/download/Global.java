@@ -12,7 +12,7 @@ public class Global {
 
 	public static class FileOrDir{
 		public static String APP="";
-		public static String AppDir=Environment.getExternalStorageDirectory()+"/download/";
+		public static String AppDir=Environment.getExternalStorageDirectory()+"/"+SCHEMA+"/";
 	}
 	
 	public static class URL{

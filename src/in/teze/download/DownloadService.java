@@ -283,6 +283,7 @@ public class DownloadService extends Service {
 			if (object instanceof FileInfo) {
 				FileInfo info = (FileInfo) object;
 				if (TextUtils.isEmpty(stask)) {
+					Loger.w(TAG, "no task be add ,should define a task ,eg:TASK_ADD_DOWNLOAD");
 					return;
 				}
 				if (stask.equals(Task.TASK_ADD_DOWNLOAD)) {
