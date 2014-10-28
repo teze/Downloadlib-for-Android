@@ -32,6 +32,10 @@
         </activity>
 
         <service android:name="in.teze.download.DownloadService" >
+            <intent-filter >
+                <action android:name="android.intent.action.DownloadService"/>
+                
+            </intent-filter>
         </service>
 
         

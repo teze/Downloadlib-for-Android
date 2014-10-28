@@ -26,13 +26,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<FileInfo, Integer> fileRuntimeDao = null;
 	private static DatabaseHelper instance;
 
-	public DatabaseHelper(Context context) {
+	private DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
-	public static DatabaseHelper getHelper(){
+	public static DatabaseHelper getHelper(Context context){
 		if (instance==null) {
-			instance=new DatabaseHelper(APP.getInstance());
+			instance=new DatabaseHelper(context);
 		}
 		return instance;
 	}

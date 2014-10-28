@@ -80,7 +80,7 @@ public class DownloadActivity extends ActionBarActivity implements OnItemClickLi
 
 
 	private void initData(){
-		process=new DownloadProcess();
+		process=new DownloadProcess(getApplicationContext());
 		mAdapter=new DownloadListAdapter(this);
 		mAdapter.setClickListener(this);
 		listView.setAdapter(mAdapter);

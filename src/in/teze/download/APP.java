@@ -10,7 +10,7 @@ public class APP extends Application {
 
 	protected static final String TAG = "APP";
 	protected static String APP_NAME = "APP";
-	protected static String SCHEMA = "in.teze.downloadlib.";
+	/*protected static String SCHEMA = "in.teze.downloadlib.";*/
 
 	private static APP instance;
 	private static DatabaseHelper dbHelper;
@@ -35,7 +35,7 @@ public class APP extends Application {
 	
 	
 	private void initDataBase(){
-		dbHelper=new DatabaseHelper(this);
+		dbHelper=DatabaseHelper.getHelper(this);
 	}
 
 	@Override

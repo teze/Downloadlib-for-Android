@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -16,11 +17,11 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 public class DownloadProcess {
 	
 	private static final String TAG = "DownloadProcess";
-	public DatabaseHelper helper=APP.getDbHelper();
+	public DatabaseHelper helper;
 	private RuntimeExceptionDao<FileInfo, Integer> fileDao;
 	
-	public DownloadProcess(){
-		helper=APP.getDbHelper();
+	public DownloadProcess(Context context){
+		helper=DatabaseHelper.getHelper(context);
 		fileDao=helper.getFileDataDao();
 	}
 	

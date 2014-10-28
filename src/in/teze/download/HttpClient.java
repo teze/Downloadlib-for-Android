@@ -11,8 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import android.widget.Toast;
-
 /**功能：
  * HttpClientTool
  * @author   by fooyou 2014年6月12日   下午3:35:42
@@ -110,7 +108,8 @@ public class HttpClient {
 				response.msg="存储卡空间不足";
 				response.progress=progress;
 				callback.onFailed(filePath, response);
-				Toast.makeText(APP.getInstance(), "存储卡空间不足", Toast.LENGTH_SHORT).show();
+				/*Toast.makeText(APP.getInstance(), "存储卡空间不足", Toast.LENGTH_SHORT).show();*/
+				Loger.w(TAG,response.msg);
 				return null;
 			}
 

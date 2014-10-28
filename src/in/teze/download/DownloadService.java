@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 /**功能：
  * DownloadService
@@ -20,7 +21,7 @@ import android.text.TextUtils;
 public class DownloadService extends Service {
 
 	private static final String TAG = "DownloadService";
-	public  static final String ACTION_DOWNLOAD = APP.SCHEMA+"action_download";
+	public  static final String ACTION_DOWNLOAD = Global.SCHEMA+"action_download";
 	public  static final String INTENT_ACTION_TYPE = "actionType";
 	public  static final String INTENT_BUNDLE = "bundle";
 	public  static final String INTENT_FILE_ID = "fileId";
@@ -151,6 +152,7 @@ public class DownloadService extends Service {
 				temp.state=FileInfo.STATE_STOPPED;
 				updateProgressDb(temp); 
 				removeThread(fileKey);
+				Toast.makeText(getApplicationContext(), obj.msg, Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
@@ -257,7 +259,7 @@ public class DownloadService extends Service {
 	}
 	
 	private void init(){
-		process=new DownloadProcess();
+		process=new DownloadProcess(getApplicationContext());
 	}
 
 	@Override

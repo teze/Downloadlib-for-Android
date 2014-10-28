@@ -9,11 +9,13 @@ import in.teze.download.Global.FileOrDir;
 
 public class MainActivity extends ActionBarActivity {
    private int index;
+   DatabaseHelper dbHelper ;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		dbHelper = DatabaseHelper.getHelper(getApplicationContext());
 	}
 
 	public void add(View view){
@@ -24,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
 			info.filePath=FileOrDir.AppDir+info.name;
 			info.progress=0;
 			info.state=FileInfo.STATE_RUNNING;
-			APP.getDbHelper().getFileDataDao().create(info);
+			dbHelper.getFileDataDao().create(info);
 		}
 	}
 	
@@ -58,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
 		info.fileSize=10;
 		info.state=FileInfo.STATE_RUNNING;
 		/*APP.getDbHelper().getFileDataDao().update(info);*/
-		DownloadProcess downloadProcess=new DownloadProcess();
+		DownloadProcess downloadProcess=new DownloadProcess(getApplicationContext());
 		downloadProcess.updateFileSizeDb(info);
 	}
 }
