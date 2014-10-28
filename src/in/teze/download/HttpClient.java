@@ -17,7 +17,7 @@ import android.widget.Toast;
  * HttpClientTool
  * @author   by fooyou 2014年6月12日   下午3:35:42
  */
-public class HttpClientTool {
+public class HttpClient {
 
 	private static final int TIMEOUT_READ = 20 * 1000;
 	private static final int TIMEOUT_CONNECT = 10 * 1000;

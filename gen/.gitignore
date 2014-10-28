@@ -1,2 +1,3 @@
-/android
-/in
+/in/
+/.gitignore
+/android/

@@ -1,7 +1,7 @@
 package in.teze.download;
 
-import in.teze.download.HttpClientTool.DownloadCallback;
-import in.teze.download.HttpClientTool.Response;
+import in.teze.download.HttpClient.DownloadCallback;
+import in.teze.download.HttpClient.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -190,7 +190,7 @@ public class DownloadService extends Service {
 					return;
 				}
 				keepThread(info.filePath, Thread.currentThread());
-				HttpClientTool.continuousDownload(info.url, info.filePath, callback);
+				HttpClient.continuousDownload(info.url, info.filePath, callback);
 			}
 		};
 		ThreadPoolManager.getInstance().addThread(runnable);
